@@ -32,7 +32,6 @@ class Object{
 	private:
 		float leftX, rightX, topY, bottomY;
 		mat4 Render();
-		GLuint numIndices;
-		GLuint vertexBufferID;
-		GLenum renderMode;
+		GLuint textureID;
+		GLuint numIndices, vertexBufferID, renderMode;
 };
