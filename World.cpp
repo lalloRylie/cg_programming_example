@@ -130,5 +130,12 @@ void World::Update(const float& deltaTime){
 }
 
 void World::Render(const Camera& camera){
-	plane->Render(camera);
+	//plane->Render(camera);
+
+	for(int i = 0; i < levelHeight; i++){
+		for(int j = 0; j < levelWidth; j++) {
+			plane->SetPosition(vec3(i + i, j+j, 0));
+			plane->Render(camera);
+		}
+	}
 }
