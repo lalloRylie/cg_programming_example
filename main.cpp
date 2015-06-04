@@ -158,7 +158,7 @@ int main(){
 	glBindVertexArray(vertexArrayID);
 
 	//Create and compile glsl program from shaders...
-	GLuint programID = LoadShaders("BasicVertexShader.vertexshader", "BasicFragmentShader.fragmentshader");
+	GLuint programID = LoadShaders("TexturedVertexShader.vertexshader", "TexturedFragmentShader.fragmentshader");
 	glUseProgram(programID);
 
 	Camera camera;
@@ -166,10 +166,13 @@ int main(){
 	camera.MVPMatrixID = glGetUniformLocation(programID, "MVP");
 	camera.projectionMatrix = perspective(FIELD_OF_VIEW, aspectRatio, Z_NEAR, Z_FAR);
 
+	//New Code
+	GLuint TextureID  = glGetUniformLocation(programID, "myTextureSampler");
+
 	World world;
 
-	glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
-	//glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
+	//glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+	glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
 
 	do{
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -184,8 +187,10 @@ int main(){
 			vec3(0,1,0)  // Head is up (set to 0,-1,0 to look upside-down)
 		);
 
+
 		world.Update(deltaTime);
 		world.Render(camera);
+
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();

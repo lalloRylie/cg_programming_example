@@ -33,5 +33,5 @@ class Object{
 		float leftX, rightX, topY, bottomY;
 		mat4 Render();
 		GLuint textureID;
-		GLuint numIndices, vertexBufferID, renderMode;
+		GLuint numIndices, vertexBufferID, uvBufferID, renderMode;
 };

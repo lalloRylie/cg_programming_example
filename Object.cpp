@@ -108,21 +108,33 @@ void Object::LoadTriangles(const GLuint& perRow, const GLuint& perColumn, const 
 		1.0f, 1.0f,  0.0f,	//maps to index 2
 		1.0f, 0.0f, 0.0f,	//maps to index 3
 
-		1.0f, 0.0f, 0.0f,	//maps to index 4
-		0.0f, 0.0f, 0.0f,	//maps to index 5
+		//1.0f, 0.0f, 0.0f,	//maps to index 4
+		//0.0f, 0.0f, 0.0f,	//maps to index 5
 
-		0.0f, 0.0f, 0.0f,	//maps to index 6
-		0.0f, -1.0f, 0.0f,	//maps to index 7
-		1.0f, 0.0f, 0.0f,	//maps to index 8
-		1.0f, -1.0f, 0.0f	//maps to index 9
+		//0.0f, 0.0f, 0.0f,	//maps to index 6
+		//0.0f, -1.0f, 0.0f,	//maps to index 7
+		//1.0f, 0.0f, 0.0f,	//maps to index 8
+		//1.0f, -1.0f, 0.0f	//maps to index 9
 	};
 
-	numIndices = 10;		//For a total of 10 indices
+	numIndices = 4;		//For a total of 10 indices
 	
 	this->renderMode = renderMode;
 	glGenBuffers(1, &vertexBufferID);
 	glBindBuffer(GL_ARRAY_BUFFER, vertexBufferID);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertexBuffer), vertexBuffer, GL_STATIC_DRAW);
+
+
+	//New Code
+	static const GLfloat uvBuffer[] = {
+		0.0f, 1.0f,
+		0.0f, 0.0f,
+		1.0f, 1.0f,
+		1.0f, 0.0f
+	};
+	glGenBuffers(1, &uvBufferID);
+	glBindBuffer(GL_ARRAY_BUFFER, uvBufferID);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(uvBuffer), uvBuffer, GL_STATIC_DRAW);
 }
 
 void Object::SaveObjectState(char *message){
@@ -215,9 +227,6 @@ mat4 Object::Render(){
 		(void*)0	//Array buffer offset...
 	);
 
-	glDrawArrays(renderMode, 0, numIndices);	//GL_TRIANGLE_STRIP or GL_TRIANGLES
-	glDisableVertexAttribArray(0);
-
 	//Every object starts off with an identity matrix...
 	/*mat4 objectMatrix = mat4(1.0f);
 	mat4 identityMatrix = glm::scale(objectMatrix, scale);	
@@ -226,6 +235,23 @@ mat4 Object::Render(){
 	mat4 identityMatrix = mat4(1.0f);
 	mat4 translateMatrix = translate(identityMatrix, position);
 	mat4 modelMatrix = glm::scale(translateMatrix, scale);
+
+	//New Code
+	glEnableVertexAttribArray(1);
+	glBindBuffer(GL_ARRAY_BUFFER, uvBufferID);
+	glVertexAttribPointer(
+		1,                  // attribute. No particular reason for 1, but must match the layout in the shader.
+		2,                  // size : U+V => 2
+		GL_FLOAT,           // type
+		GL_FALSE,           // normalized?
+		0,                  // stride
+		(void*)0            // array buffer offset
+	);
+	//
+
+	glDrawArrays(renderMode, 0, numIndices);	//GL_TRIANGLE_STRIP or GL_TRIANGLES
+	glDisableVertexAttribArray(0);
+	glDisableVertexAttribArray(1);
 
 	return modelMatrix;
 }

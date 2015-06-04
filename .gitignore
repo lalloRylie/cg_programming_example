@@ -11,17 +11,18 @@
 *.userprefs
 
 # Build results
-![Dd]ebug/*.dll
-[Dd]ebug/*
+[Dd]ebug/
 [Dd]ebugPublic/
-[Rr]elease/
+# [Rr]elease/
 [Rr]eleases/
 x64/
 x86/
 build/
 bld/
-[Bb]in/
+# [Bb]in/
 [Oo]bj/
+!Libraries/glew-1.12.0/lib/Release/Win32
+!Debug/*.dll
 
 # Visual Studo 2015 cache/options directory
 .vs/
