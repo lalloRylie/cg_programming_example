@@ -50,7 +50,7 @@ void Object::Update(const float& deltaTime){
 }
 
 void Object::Render(const Camera& camera){
-	mat4 modelMatrix = Render();
+	mat4 modelMatrix = Render(this->textureID);
 	mat4 MVPMatrix = camera.projectionMatrix * camera.viewMatrix * modelMatrix;
 
 	glUniformMatrix4fv(camera.MVPMatrixID, 1, GL_FALSE, &MVPMatrix[0][0]);
@@ -214,7 +214,7 @@ GLuint Object::LoadBMP(const char * imagepath){
 	return textureID;
 }
 
-mat4 Object::Render(){
+mat4 Object::Render(GLuint textureID){
 	glEnableVertexAttribArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, vertexBufferID);
 
@@ -248,6 +248,9 @@ mat4 Object::Render(){
 		(void*)0            // array buffer offset
 	);
 	//
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, textureID);
 
 	glDrawArrays(renderMode, 0, numIndices);	//GL_TRIANGLE_STRIP or GL_TRIANGLES
 	glDisableVertexAttribArray(0);

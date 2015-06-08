@@ -1,4 +1,5 @@
 #include "World.h"
+#include "Datacore.h"
 
 namespace{
 	const u8 MAX_BUFFER_SIZE = 64;
@@ -19,7 +20,8 @@ namespace{
 //TODO: Add functionality later...
 World::World(){
 	plane = new Plane(1, 1);
-	GLuint textureID = plane->LoadBMP("test.bmp");
+	Datacore::texture_test = plane->LoadBMP("test.bmp");
+	Datacore::texture_grass = plane->LoadBMP("grass.bmp");
 
 	//load world...
 	ifstream myfile(LEVEL_0);
@@ -131,11 +133,24 @@ void World::Update(const float& deltaTime){
 
 void World::Render(const Camera& camera){
 	//plane->Render(camera);
-
+	int counter = 0;
 	for(int i = 0; i < levelHeight; i++){
 		for(int j = 0; j < levelWidth; j++) {
 			plane->SetPosition(vec3(i + i, j+j, 0));
-			plane->Render(camera);
+
+			if(counter == 0) {
+				plane->textureID = Datacore::texture_grass;
+				counter = 1;
+				plane->Render(camera);
+				continue;
+			}
+
+			if(counter == 1) {
+				plane->textureID = Datacore::texture_test;
+				counter = 0;
+				plane->Render(camera);
+				continue;
+			}
 		}
 	}
 }
