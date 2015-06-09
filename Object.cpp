@@ -7,7 +7,8 @@ Object::Object(){
 	SetPosition(vec3(0));
 	SetScale(vec3(1));
 	numIndices = 6;
-	textureID = NULL;
+	numUVs = 0;
+	textureID = 0;
 }
 
 Object::~Object(){
@@ -50,100 +51,108 @@ void Object::Update(const float& deltaTime){
 }
 
 void Object::Render(const Camera& camera){
-	mat4 modelMatrix = Render(this->textureID);
+	mat4 modelMatrix = Render();
 	mat4 MVPMatrix = camera.projectionMatrix * camera.viewMatrix * modelMatrix;
 
 	glUniformMatrix4fv(camera.MVPMatrixID, 1, GL_FALSE, &MVPMatrix[0][0]);
 }
 
-//bool loadTextureFromFile( std::string path )
-//{
-//    //Texture loading success
-//    bool textureLoaded = false;
-//
-//    //Generate and set current image ID
-//    ILuint imgID = 0;
-//    ilGenImages( 1, &imgID );
-//    ilBindImage( imgID );
-//
-//    //Load image
-//    ILboolean success = ilLoadImage( path.c_str() );
-//
-//    //Image loaded successfully
-//    if( success == IL_TRUE )
-//    {
-//        //Convert image to RGBA
-//        success = ilConvertImage( IL_RGBA, IL_UNSIGNED_BYTE );
-//        if( success == IL_TRUE )
-//        {
-//            //Create texture from file pixels
-//            textureLoaded = loadTextureFromPixels32( (GLuint*)ilGetData(), (GLuint)ilGetInteger( IL_IMAGE_WIDTH ), (GLuint)ilGetInteger( IL_IMAGE_HEIGHT ) );
-//        }
-//
-//        //Delete file from memory
-//        ilDeleteImages( 1, &imgID );
-//    }
-//
-//    //Report error
-//    if( !textureLoaded )
-//    {
-//        printf( "Unable to load %s\n", path.c_str() );
-//    }
-//
-//    return textureLoaded;
-//}
+void Object::BuildTriangles(const GLuint& perRow, const GLuint& perColumn){
+	int numValuesPerRow = 18 * perRow;
+	int numValues = 18 * perRow * perColumn;
 
-void Object::LoadTriangles(const GLuint& perRow, const GLuint& perColumn, const GLenum& renderMode){
+	GLfloat *vertices = new GLfloat[numValues];
+	for(int i = 0, x = 0, y = 0; i < numValues; ++x){
+		vertices[i] = x;		vertices[++i] = y + 1;	vertices[++i] = 0;
+		vertices[++i] = x;		vertices[++i] = y;		vertices[++i] = 0;
+		vertices[++i] = x + 1;	vertices[++i] = y + 1;	vertices[++i] = 0;
+		
+		vertices[++i] = x + 1;	vertices[++i] = y;		vertices[++i] = 0;
+		vertices[++i] = x + 1;	vertices[++i] = y + 1;	vertices[++i] = 0;
+		vertices[++i] = x;		vertices[++i] = y;		vertices[++i] = 0;
 
+		if(++i % numValuesPerRow == 0){
+			x = -1; --y;
+		}
+	}
+
+	int numUvValuesPerRow = 12 * perRow;
+	int numUvValues = 12 * perRow * perColumn;
+
+	GLfloat *uvs = new GLfloat[numUvValues];
+	for(int i = 0, u = 0, v = 0; i < numUvValues; ++u){
+		uvs[i] = u;			uvs[++i] = -v;
+		uvs[++i] = u;	uvs[++i] = -v - 1;
+		uvs[++i] = u + 1;		uvs[++i] = -v;
+		
+		uvs[++i] = u + 1;	uvs[++i] = -v - 1;
+		uvs[++i] = u + 1;		uvs[++i] = -v;
+		uvs[++i] = u;	uvs[++i] = -v - 1;
+
+		if(++i % numUvValuesPerRow == 0){
+			u = -1; ++v;
+		}
+	}
+
+	numUVs = numUvValues/2;
+	numIndices = numValues/3;
+	this->renderMode = GL_TRIANGLES;
+	LoadTriangles(vertices, uvs);
+}
+
+void Object::BuildTriangleStrip(const GLuint& perRow, const GLuint& perColumn){
 	/*
-		0,1   1,1
-		0,0   1,0
-
-		0,0   1,0
-		0,-1  1,-1
+		0, 1	1, 1	|	2, 1	3, 1
+		0, 0	1, 0	|	2, 0	3, 0
+						|
+		0, 0	1, 0	|	2, 0 	3, 0
+		0,-1	1,-1	|	2,-1	3,-1
 	*/
-	static const GLfloat vertexBuffer[] = {
-		0.0f, 1.0f,  0.0f,	//maps to index 0
-		0.0f, 0.0f, 0.0f,	//maps to index 1
-		1.0f, 1.0f,  0.0f,	//maps to index 2
-		1.0f, 0.0f, 0.0f,	//maps to index 3
 
-		//1.0f, 0.0f, 0.0f,	//maps to index 4
-		//0.0f, 0.0f, 0.0f,	//maps to index 5
+	int numValuesPerRow = (2 + (2 * perRow)) *3, numDegenValues = 2 * 3;
+	uint numValues = (numValuesPerRow + numDegenValues) * perColumn;
 
-		//0.0f, 0.0f, 0.0f,	//maps to index 6
-		//0.0f, -1.0f, 0.0f,	//maps to index 7
-		//1.0f, 0.0f, 0.0f,	//maps to index 8
-		//1.0f, -1.0f, 0.0f	//maps to index 9
-	};
+	GLfloat *vertices = new GLfloat[numValues];
+	for(int i = 0, x = 0, y = 0; i < numValues; ++x){
+		vertices[i] = x;		vertices[++i] = y + 1;	vertices[++i] = 0;
+		vertices[++i] = x;		vertices[++i] = y;		vertices[++i] = 0;
 
-	numIndices = 4;		//For a total of 10 indices
-	
-	this->renderMode = renderMode;
+		if((++i) % numValuesPerRow == 0){
+			vertices[i] = x;	vertices[++i] = y;	vertices[++i] = 0;
+			vertices[++i] = x;		vertices[++i] = y;	vertices[++i] = 0;
+			numValuesPerRow += numDegenValues;
+			i +=1;
+			x = -1; --y;
+		}
+	}
+
+	/*GLfloat *vertices = new GLfloat[numVertices];
+	vertices[0] = 0.0f; vertices[1] = 1.0f; vertices[2] = 0.0f;
+	vertices[3] = 0.0f; vertices[4] = 0.0f; vertices[5] = 0.0f;
+	vertices[6] = 1.0f; vertices[7] = 1.0f; vertices[8] = 0.0f;
+	vertices[9] = 1.0f; vertices[10] = 0.0f; vertices[11] = 0.0f;
+
+	vertices[12] = 1.0f; vertices[13] = 0.0f; vertices[14] = 0.0f;
+	vertices[15] = 1.0f; vertices[16] = 0.0f; vertices[17] = 0.0f;
+
+	vertices[18] = 0.0f; vertices[19] = 0.0f; vertices[20] = 0.0f;
+	vertices[21] = 0.0f; vertices[22] = -1.0f; vertices[23] = 0.0f;
+	vertices[24] = 1.0f; vertices[25] = 0.0f; vertices[26] = 0.0f;
+	vertices[27] = 1.0f; vertices[28] = -1.0f; vertices[29] = 0.0f;*/
+
+	numIndices = numValues/3;
+	this->renderMode = GL_TRIANGLE_STRIP;
+	LoadTriangles(vertices, vertices);
+}
+
+void Object::LoadTriangles(GLfloat *vertices, GLfloat *uvs){
 	glGenBuffers(1, &vertexBufferID);
 	glBindBuffer(GL_ARRAY_BUFFER, vertexBufferID);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertexBuffer), vertexBuffer, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, numIndices * 3 * sizeof(GLfloat), vertices, GL_STATIC_DRAW);
 
-
-	//New Code
-	static const GLfloat uvBuffer[] = {
-		0.0f, 1.0f,
-		0.0f, 0.0f,
-		1.0f, 1.0f,
-		1.0f, 0.0f,
-
-		//1.0f, 0.0f,
-		//0.0f, 0.0f,
-		
-		//0.0f, 0.0f,
-		//0.0f, -1.0f,
-		//1.0f, 0.0f,
-		//1.0f, -1.0f
-	};
-
-	glGenBuffers(1, &uvBufferID);
-	glBindBuffer(GL_ARRAY_BUFFER, uvBufferID);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(uvBuffer), uvBuffer, GL_STATIC_DRAW);
+	glGenBuffers(1, &uvID);
+	glBindBuffer(GL_ARRAY_BUFFER, uvID);
+	glBufferData(GL_ARRAY_BUFFER, numUVs * 2 * sizeof(GLfloat), uvs, GL_STATIC_DRAW);
 }
 
 void Object::SaveObjectState(char *message){
@@ -223,7 +232,7 @@ GLuint Object::LoadBMP(const char * imagepath){
 	return textureID;
 }
 
-mat4 Object::Render(GLuint textureID){
+mat4 Object::Render(){
 	glEnableVertexAttribArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, vertexBufferID);
 
@@ -236,6 +245,24 @@ mat4 Object::Render(GLuint textureID){
 		(void*)0	//Array buffer offset...
 	);
 
+	//Rendering UVs...
+	glEnableVertexAttribArray(1);
+	glBindBuffer(GL_ARRAY_BUFFER, uvID);
+
+	glVertexAttribPointer(
+		1,			//attribute layout
+		2,			//Elements in array
+		GL_FLOAT,	//Each element is of type float
+		GL_FALSE,	//Normalized?
+		0,			//Stride...
+		(void*)0	//Array buffer offset...
+	);
+
+	glDrawArrays(renderMode, 0, numIndices);	//GL_TRIANGLE_STRIP or GL_TRIANGLES
+
+	glDisableVertexAttribArray(0);
+	glDisableVertexAttribArray(1);
+
 	//Every object starts off with an identity matrix...
 	/*mat4 objectMatrix = mat4(1.0f);
 	mat4 identityMatrix = glm::scale(objectMatrix, scale);	
@@ -244,26 +271,6 @@ mat4 Object::Render(GLuint textureID){
 	mat4 identityMatrix = mat4(1.0f);
 	mat4 translateMatrix = translate(identityMatrix, position);
 	mat4 modelMatrix = glm::scale(translateMatrix, scale);
-
-	//New Code
-	glEnableVertexAttribArray(1);
-	glBindBuffer(GL_ARRAY_BUFFER, uvBufferID);
-	glVertexAttribPointer(
-		1,                  // attribute. No particular reason for 1, but must match the layout in the shader.
-		2,                  // size : U+V => 2
-		GL_FLOAT,           // type
-		GL_FALSE,           // normalized?
-		0,                  // stride
-		(void*)0            // array buffer offset
-	);
-	
-
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, textureID);
-
-	glDrawArrays(renderMode, 0, numIndices);	//GL_TRIANGLE_STRIP or GL_TRIANGLES
-	glDisableVertexAttribArray(0);
-	glDisableVertexAttribArray(1);
 
 	return modelMatrix;
 }

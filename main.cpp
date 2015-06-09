@@ -166,13 +166,10 @@ int main(){
 	camera.MVPMatrixID = glGetUniformLocation(programID, "MVP");
 	camera.projectionMatrix = perspective(FIELD_OF_VIEW, aspectRatio, Z_NEAR, Z_FAR);
 
-	//New Code
-	GLuint TextureID  = glGetUniformLocation(programID, "myTextureSampler");
-
 	World world;
 
+	//Comment this in to render lines...
 	//glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
-	glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
 
 	do{
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -182,15 +179,13 @@ int main(){
 
 		// Camera matrix
 		camera.viewMatrix = lookAt(
-			vec3(0,0,25), // Camera is at (0,0,3), in World Space
+			vec3(0,0,3), // Camera is at (4,3,3), in World Space
 			vec3(0,0,0), // and looks at the origin
 			vec3(0,1,0)  // Head is up (set to 0,-1,0 to look upside-down)
 		);
 
-
 		world.Update(deltaTime);
 		world.Render(camera);
-
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
