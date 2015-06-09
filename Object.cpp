@@ -130,8 +130,17 @@ void Object::LoadTriangles(const GLuint& perRow, const GLuint& perColumn, const 
 		0.0f, 1.0f,
 		0.0f, 0.0f,
 		1.0f, 1.0f,
-		1.0f, 0.0f
+		1.0f, 0.0f,
+
+		//1.0f, 0.0f,
+		//0.0f, 0.0f,
+		
+		//0.0f, 0.0f,
+		//0.0f, -1.0f,
+		//1.0f, 0.0f,
+		//1.0f, -1.0f
 	};
+
 	glGenBuffers(1, &uvBufferID);
 	glBindBuffer(GL_ARRAY_BUFFER, uvBufferID);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(uvBuffer), uvBuffer, GL_STATIC_DRAW);
@@ -247,7 +256,7 @@ mat4 Object::Render(GLuint textureID){
 		0,                  // stride
 		(void*)0            // array buffer offset
 	);
-	//
+	
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, textureID);

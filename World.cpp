@@ -132,11 +132,12 @@ void World::Update(const float& deltaTime){
 }
 
 void World::Render(const Camera& camera){
+	//plane->textureID = Datacore::texture_test;
 	//plane->Render(camera);
 	int counter = 0;
 	for(int i = 0; i < levelHeight; i++){
 		for(int j = 0; j < levelWidth; j++) {
-			plane->SetPosition(vec3(i + i, j+j, 0));
+			plane->SetPosition(vec3(i+i, j+j, 0));
 
 			if(counter == 0) {
 				plane->textureID = Datacore::texture_grass;

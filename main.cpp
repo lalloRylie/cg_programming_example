@@ -182,7 +182,7 @@ int main(){
 
 		// Camera matrix
 		camera.viewMatrix = lookAt(
-			vec3(0,0,30), // Camera is at (0,0,3), in World Space
+			vec3(0,0,25), // Camera is at (0,0,3), in World Space
 			vec3(0,0,0), // and looks at the origin
 			vec3(0,1,0)  // Head is up (set to 0,-1,0 to look upside-down)
 		);
