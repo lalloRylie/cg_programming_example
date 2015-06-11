@@ -118,12 +118,12 @@ void Object::BuildTriangles(const GLuint& perRow, const GLuint& perColumn){
 	GLfloat *uvs = new GLfloat[numUvValues];
 	for(int i = 0, u = 0, v = 0; i < numUvValues; ++u){
 		uvs[i] = u;			uvs[++i] = -v;
-		uvs[++i] = u;	uvs[++i] = -v - 1;
-		uvs[++i] = u + 1;		uvs[++i] = -v;
+		uvs[++i] = u;		uvs[++i] = -v - 1;
+		uvs[++i] = u + 1;	uvs[++i] = -v;
 		
 		uvs[++i] = u + 1;	uvs[++i] = -v - 1;
-		uvs[++i] = u + 1;		uvs[++i] = -v;
-		uvs[++i] = u;	uvs[++i] = -v - 1;
+		uvs[++i] = u + 1;	uvs[++i] = -v;
+		uvs[++i] = u;		uvs[++i] = -v - 1;
 
 		if(++i % numUvValuesPerRow == 0){
 			u = -1; ++v;

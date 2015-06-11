@@ -134,7 +134,6 @@ void World::_WorldToScreen(float &x, float &y) {
 }
 
 void World::Update(const float& deltaTime){
-
 	plane->Update(deltaTime);
 }
 
@@ -142,57 +141,30 @@ void World::Render(const Camera& camera){
 	//plane->textureID = Datacore::texture_test;
 	//plane->Render(camera);
 
-
-	//New Code
-	int counter = 0;
+	int index = -1;
 	for(int i = 0; i < levelHeight; i++){
 		for(int j = 0; j < levelWidth; j++) {
 			float x = i;
 			float y = j;
 			_WorldToScreen(x,y);
 			plane->SetPosition(vec3(x, y, 0));
-			if(levelBuffer[counter] == '0'){
+			if(levelBuffer[index] == '0'){
 				plane->textureID = Datacore::texture_grass;
 				plane->Render(camera);
-				counter++;
-			} else if(levelBuffer[counter] == '1'){
+				index++;
+			} else if(levelBuffer[index] == '1'){
 				plane->textureID = Datacore::texture_tree;
 				plane->Render(camera);
-				counter++;
-			} else if(levelBuffer[counter] == '2'){
+				index++;
+			} else if(levelBuffer[index] == '2'){
 				plane->textureID = Datacore::texture_dirt;
 				plane->Render(camera);
-				counter++;
-			} else if(levelBuffer[counter] == '3'){
+				index++;
+			} else if(levelBuffer[index] == '3'){
 				plane->textureID = Datacore::texture_rock;
 				plane->Render(camera);
-				counter++;
-			}
+				index++;
+			} else index++;
 		}
 	}
-	//
-
-
-
-
-	/*int counter = 0;
-	for(int i = 0; i < levelHeight; i++){
-		for(int j = 0; j < levelWidth; j++) {
-			plane->SetPosition(vec3(i+i, j+j, 0));
-
-			if(counter == 0) {
-				plane->textureID = Datacore::texture_grass;
-				counter = 1;
-				plane->Render(camera);
-				continue;
-			}
-
-			if(counter == 1) {
-				plane->textureID = Datacore::texture_test;
-				counter = 0;
-				plane->Render(camera);
-				continue;
-			}
-		}
-	}*/
 }
