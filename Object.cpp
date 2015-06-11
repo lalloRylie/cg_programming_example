@@ -93,58 +93,127 @@ void Object::Render(const Camera& camera){
 //    return textureLoaded;
 //}
 
-void Object::LoadTriangles(const GLuint& perRow, const GLuint& perColumn, const GLenum& renderMode){
+void Object::BuildTriangles(const GLuint& perRow, const GLuint& perColumn){
+	int numValuesPerRow = 18 * perRow;
+	int numValues = 18 * perRow * perColumn;
 
-	/*
-		0,1   1,1
-		0,0   1,0
+	GLfloat *vertices = new GLfloat[numValues];
+	for(int i = 0, x = 0, y = 0; i < numValues; ++x){
+		vertices[i] = x;		vertices[++i] = y + 1;	vertices[++i] = 0;
+		vertices[++i] = x;		vertices[++i] = y;		vertices[++i] = 0;
+		vertices[++i] = x + 1;	vertices[++i] = y + 1;	vertices[++i] = 0;
+		
+		vertices[++i] = x + 1;	vertices[++i] = y;		vertices[++i] = 0;
+		vertices[++i] = x + 1;	vertices[++i] = y + 1;	vertices[++i] = 0;
+		vertices[++i] = x;		vertices[++i] = y;		vertices[++i] = 0;
 
-		0,0   1,0
-		0,-1  1,-1
-	*/
-	static const GLfloat vertexBuffer[] = {
-		0.0f, 1.0f,  0.0f,	//maps to index 0
-		0.0f, 0.0f, 0.0f,	//maps to index 1
-		1.0f, 1.0f,  0.0f,	//maps to index 2
-		1.0f, 0.0f, 0.0f,	//maps to index 3
+		if(++i % numValuesPerRow == 0){
+			x = -1; --y;
+		}
+	}
 
-		//1.0f, 0.0f, 0.0f,	//maps to index 4
-		//0.0f, 0.0f, 0.0f,	//maps to index 5
+	int numUvValuesPerRow = 12 * perRow;
+	int numUvValues = 12 * perRow * perColumn;
 
-		//0.0f, 0.0f, 0.0f,	//maps to index 6
-		//0.0f, -1.0f, 0.0f,	//maps to index 7
-		//1.0f, 0.0f, 0.0f,	//maps to index 8
-		//1.0f, -1.0f, 0.0f	//maps to index 9
-	};
+	GLfloat *uvs = new GLfloat[numUvValues];
+	for(int i = 0, u = 0, v = 0; i < numUvValues; ++u){
+		uvs[i] = u;			uvs[++i] = -v;
+		uvs[++i] = u;	uvs[++i] = -v - 1;
+		uvs[++i] = u + 1;		uvs[++i] = -v;
+		
+		uvs[++i] = u + 1;	uvs[++i] = -v - 1;
+		uvs[++i] = u + 1;		uvs[++i] = -v;
+		uvs[++i] = u;	uvs[++i] = -v - 1;
 
-	numIndices = 4;		//For a total of 10 indices
-	
-	this->renderMode = renderMode;
+		if(++i % numUvValuesPerRow == 0){
+			u = -1; ++v;
+		}
+	}
+
+	numUVs = numUvValues/2;
+	numIndices = numValues/3;
+	this->renderMode = GL_TRIANGLES;
+	LoadTriangles(vertices, uvs);
+}
+
+void Object::LoadTriangles(GLfloat *vertices, GLfloat *uvs){
 	glGenBuffers(1, &vertexBufferID);
 	glBindBuffer(GL_ARRAY_BUFFER, vertexBufferID);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertexBuffer), vertexBuffer, GL_STATIC_DRAW);
-
-
-	//New Code
-	static const GLfloat uvBuffer[] = {
-		0.0f, 1.0f,
-		0.0f, 0.0f,
-		1.0f, 1.0f,
-		1.0f, 0.0f,
-
-		//1.0f, 0.0f,
-		//0.0f, 0.0f,
-		
-		//0.0f, 0.0f,
-		//0.0f, -1.0f,
-		//1.0f, 0.0f,
-		//1.0f, -1.0f
-	};
+	glBufferData(GL_ARRAY_BUFFER, numIndices * 3 * sizeof(GLfloat), vertices, GL_STATIC_DRAW);
 
 	glGenBuffers(1, &uvBufferID);
 	glBindBuffer(GL_ARRAY_BUFFER, uvBufferID);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(uvBuffer), uvBuffer, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, numUVs * 2 * sizeof(GLfloat), uvs, GL_STATIC_DRAW);
 }
+
+////OLD CODE
+//void Object::LoadTriangles(const GLuint& perRow, const GLuint& perColumn, const GLenum& renderMode){
+//
+//	/*
+//		0,1   1,1
+//		0,0   1,0
+//
+//		0,0   1,0
+//		0,-1  1,-1
+//	*/
+//	static const GLfloat vertexBuffer[] = {
+//		//0.0f, 1.0f,  0.0f,	//maps to index 0
+//		//0.0f, 0.0f, 0.0f,	//maps to index 1
+//		//1.0f, 1.0f,  0.0f,	//maps to index 2
+//		//1.0f, 0.0f, 0.0f,	//maps to index 3
+//
+//		//1.0f, 0.0f, 0.0f,	//maps to index 4
+//		//0.0f, 0.0f, 0.0f,	//maps to index 5
+//
+//		//0.0f, 0.0f, 0.0f,	//maps to index 6
+//		//0.0f, -1.0f, 0.0f,	//maps to index 7
+//		//1.0f, 0.0f, 0.0f,	//maps to index 8
+//		//1.0f, -1.0f, 0.0f	//maps to index 9
+//
+//		0.0f, 0.0f,  0.0f,
+//		1.0f, 0.0f, 0.0f,	
+//		1.0f, 1.0f,  0.0f,
+//
+//		1.0f, 1.0f, 0.0f,	
+//		0.0f, 1.0f, 0.0f,	
+//		0.0f, 0.0f, 0.0f	
+//	};
+//
+//	numIndices = 6;		//For a total of 10 indices
+//	
+//	this->renderMode = renderMode;
+//	glGenBuffers(1, &vertexBufferID);
+//	glBindBuffer(GL_ARRAY_BUFFER, vertexBufferID);
+//	glBufferData(GL_ARRAY_BUFFER, sizeof(vertexBuffer), vertexBuffer, GL_STATIC_DRAW);
+//
+//	static const GLfloat uvBuffer[] = {
+//		//0.0f, 1.0f,
+//		//0.0f, 0.0f,
+//		//1.0f, 1.0f,
+//		//1.0f, 0.0f,
+//
+//		//1.0f, 0.0f,
+//		//0.0f, 0.0f,
+//		
+//		//0.0f, 0.0f,
+//		//0.0f, -1.0f,
+//		//1.0f, 0.0f,
+//		//1.0f, -1.0f
+//
+//		0.0f, 0.0f,
+//		1.0f, 0.0f,
+//		1.0f, 1.0f,
+//		
+//		1.0f, 1.0f,
+//		0.0f, 1.0f,
+//		0.0f, 0.0f
+//	};
+//
+//	glGenBuffers(1, &uvBufferID);
+//	glBindBuffer(GL_ARRAY_BUFFER, uvBufferID);
+//	glBufferData(GL_ARRAY_BUFFER, sizeof(uvBuffer), uvBuffer, GL_STATIC_DRAW);
+//}
+////
 
 void Object::SaveObjectState(char *message){
 	if(objectState == NULL)

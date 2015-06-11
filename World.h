@@ -24,6 +24,7 @@ class World{
 		void Render(const Camera& camera);
 
 	private:
+		void World::_WorldToScreen(float &x, float &y);
 		unsigned char FindChar(const char* buffer, const char& c);
 		
 	private:

@@ -1,7 +1,7 @@
 #include "Paddle.h"
 
 Paddle::Paddle() : Object(){
-	LoadTriangles(2, 0, GL_TRIANGLE_STRIP);
+	BuildTriangles(2, 0);
 	SetScale(vec3(0.025f, 0.25f, 1.0f));
 	upKey = NO_KEY;
 	downKey = NO_KEY;

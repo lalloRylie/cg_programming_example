@@ -20,8 +20,10 @@ namespace{
 //TODO: Add functionality later...
 World::World(){
 	plane = new Plane(1, 1);
-	Datacore::texture_test = plane->LoadBMP("test.bmp");
 	Datacore::texture_grass = plane->LoadBMP("grass.bmp");
+	Datacore::texture_tree	= plane->LoadBMP("tree.bmp");
+	Datacore::texture_dirt	= plane->LoadBMP("dirt.bmp");
+	Datacore::texture_rock	= plane->LoadBMP("rock.bmp");
 
 	//load world...
 	ifstream myfile(LEVEL_0);
@@ -56,7 +58,7 @@ World::World(){
 				//Setting buffer size...
 
 				//Adding 1 to accomodate for comma...
-				u8 numStride = ::GetNumCharCount(((u8*)&buffer[1]) + 1);
+				u8 numStride = ::GetNumCharCount((u8*)&buffer[1]) + 1;
 
 				levelWidth = std::stoi(&buffer[1]);
 				levelHeight = std::stoi(&buffer[1 + numStride]);
@@ -126,6 +128,11 @@ World::~World(){
 	plane = NULL;
 }
 
+void World::_WorldToScreen(float &x, float &y) {
+	x = (1.05 * x) - this->levelWidth / 2;
+	y = (1.05 * y) - this->levelHeight / 2;
+}
+
 void World::Update(const float& deltaTime){
 
 	plane->Update(deltaTime);
@@ -134,7 +141,41 @@ void World::Update(const float& deltaTime){
 void World::Render(const Camera& camera){
 	//plane->textureID = Datacore::texture_test;
 	//plane->Render(camera);
+
+
+	//New Code
 	int counter = 0;
+	for(int i = 0; i < levelHeight; i++){
+		for(int j = 0; j < levelWidth; j++) {
+			float x = i;
+			float y = j;
+			_WorldToScreen(x,y);
+			plane->SetPosition(vec3(x, y, 0));
+			if(levelBuffer[counter] == '0'){
+				plane->textureID = Datacore::texture_grass;
+				plane->Render(camera);
+				counter++;
+			} else if(levelBuffer[counter] == '1'){
+				plane->textureID = Datacore::texture_tree;
+				plane->Render(camera);
+				counter++;
+			} else if(levelBuffer[counter] == '2'){
+				plane->textureID = Datacore::texture_dirt;
+				plane->Render(camera);
+				counter++;
+			} else if(levelBuffer[counter] == '3'){
+				plane->textureID = Datacore::texture_rock;
+				plane->Render(camera);
+				counter++;
+			}
+		}
+	}
+	//
+
+
+
+
+	/*int counter = 0;
 	for(int i = 0; i < levelHeight; i++){
 		for(int j = 0; j < levelWidth; j++) {
 			plane->SetPosition(vec3(i+i, j+j, 0));
@@ -153,5 +194,5 @@ void World::Render(const Camera& camera){
 				continue;
 			}
 		}
-	}
+	}*/
 }
