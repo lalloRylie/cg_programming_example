@@ -20,10 +20,28 @@ namespace{
 //TODO: Add functionality later...
 World::World(){
 	plane = new Plane(1, 1);
-	Datacore::texture_grass = plane->LoadBMP("grass.bmp");
-	Datacore::texture_tree	= plane->LoadBMP("tree.bmp");
-	Datacore::texture_dirt	= plane->LoadBMP("dirt.bmp");
-	Datacore::texture_rock	= plane->LoadBMP("rock.bmp");
+
+	//load environmental textures
+	Datacore::texture_grass   = plane->LoadBMP("Assets/grass.bmp");
+	Datacore::texture_ground  = plane->LoadBMP("Assets/ground.bmp");
+	Datacore::texture_treeTop = plane->LoadBMP("Assets/tree_top.bmp");
+	Datacore::texture_treeBot = plane->LoadBMP("Assets/tree_bot.bmp");
+	Datacore::texture_dirt	  = plane->LoadBMP("Assets/dirt.bmp");
+	Datacore::texture_rock	  = plane->LoadBMP("Assets/rock.bmp");
+
+	//load player textures
+	Datacore::texture_player_idle_f  = plane->LoadBMP("Assets/p_idle_front");
+	Datacore::texture_player_idle_b  = plane->LoadBMP("Assets/p_idle_back");
+	Datacore::texture_player_idle_l  = plane->LoadBMP("Assets/p_idle_left");
+	Datacore::texture_player_idle_r  = plane->LoadBMP("Assets/p_idle_right");
+	Datacore::texture_player_walk_u1 = plane->LoadBMP("Assets/p_walk_up1");
+	Datacore::texture_player_walk_u2 = plane->LoadBMP("Assets/p_walk_up2");
+	Datacore::texture_player_walk_d1 = plane->LoadBMP("Assets/p_walk_down1");
+	Datacore::texture_player_walk_d2 = plane->LoadBMP("Assets/p_walk_down2");
+	Datacore::texture_player_walk_l1 = plane->LoadBMP("Assets/p_walk_left1");
+	Datacore::texture_player_walk_l2 = plane->LoadBMP("Assets/p_walk_left2");
+	Datacore::texture_player_walk_r1 = plane->LoadBMP("Assets/p_walk_right1");
+	Datacore::texture_player_walk_r2 = plane->LoadBMP("Assets/p_walk_right2");
 
 	//load world...
 	ifstream myfile(LEVEL_0);
@@ -64,6 +82,7 @@ World::World(){
 				levelHeight = std::stoi(&buffer[1 + numStride]);
 		
 				levelBuffer = (u8*)malloc(levelWidth * levelHeight);
+				//memset(levelBuffer, 0, sizeof(levelBuffer));
 
 				loadLevelData = true;
 				continue;
@@ -129,42 +148,55 @@ World::~World(){
 }
 
 void World::_WorldToScreen(float &x, float &y) {
-	x = (1.05 * x) - this->levelWidth / 2;
-	y = (1.05 * y) - this->levelHeight / 2;
+	float spacing = 1.0f;
+	x = (spacing * x) - this->levelWidth / 3;
+	x += 7 - (2 * x);
+	y = (spacing * y) - this->levelHeight / 2;
 }
 
 void World::Update(const float& deltaTime){
 	plane->Update(deltaTime);
 }
 
-void World::Render(const Camera& camera){
-	//plane->textureID = Datacore::texture_test;
-	//plane->Render(camera);
-
-	int index = -1;
+void World::Render(const Camera& camera){	
+	/*int levelLength = levelHeight * levelWidth;
+	int index = levelLength;
 	for(int i = 0; i < levelHeight; i++){
 		for(int j = 0; j < levelWidth; j++) {
-			float x = i;
-			float y = j;
+			float x = j;
+			float y = i;
 			_WorldToScreen(x,y);
 			plane->SetPosition(vec3(x, y, 0));
 			if(levelBuffer[index] == '0'){
 				plane->textureID = Datacore::texture_grass;
 				plane->Render(camera);
-				index++;
+				index--;
 			} else if(levelBuffer[index] == '1'){
-				plane->textureID = Datacore::texture_tree;
+				plane->textureID = Datacore::texture_treeTop;
 				plane->Render(camera);
-				index++;
+				index--;
 			} else if(levelBuffer[index] == '2'){
+				plane->textureID = Datacore::texture_treeBot;
+				plane->Render(camera);
+				index--;
+			} else if(levelBuffer[index] == '3'){
+				plane->textureID = Datacore::texture_ground;
+				plane->Render(camera);
+				index--;
+			} else if(levelBuffer[index] == '4'){
 				plane->textureID = Datacore::texture_dirt;
 				plane->Render(camera);
-				index++;
-			} else if(levelBuffer[index] == '3'){
+				index--;
+			} else if(levelBuffer[index] == '5'){
 				plane->textureID = Datacore::texture_rock;
 				plane->Render(camera);
-				index++;
-			} else index++;
+				index--; 
+			} else index--;
 		}
-	}
+	}*/
+
+	plane->SetPosition(vec3(0,0,0));
+	plane->textureID = Datacore::texture_player_idle_f;
+	plane->Render(camera);
+
 }
