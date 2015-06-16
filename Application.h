@@ -39,6 +39,10 @@ using namespace std; //If we want to print stuff
 #define Z_NEAR 0.1f
 #define Z_FAR 100.0f
 #define GLFW_FAIL 0 
+#define CAMERA_BOUNDS_TOP 13.5999918f
+#define CAMERA_BOUNDS_BOTTOM -13.5999918f
+#define CAMERA_BOUNDS_LEFT -10.7999945f
+#define CAMERA_BOUNDS_RIGHT 8.79999638f
 
 //External Globals…
 extern GLFWwindow* window;
@@ -46,4 +50,5 @@ extern GLFWwindow* window;
 struct Camera{
 	GLuint MVPMatrixID;
 	mat4 projectionMatrix, viewMatrix, MVPMatrix;
+	vec3 position, forward;
 };

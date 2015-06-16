@@ -1,4 +1,5 @@
 #include "Application.h"
+#include "Datacore.h"
 #include "World.h"
 
 #pragma once
@@ -148,10 +149,17 @@ double getDeltaTime(){
 	return deltaTime;
 }
 
+void cameraFollow(Camera &camera, vec3 &position, float speed){
+	camera.position.x += speed * (position.x - camera.position.x);
+	camera.position.y += speed * (position.y - camera.position.y);
+}
+
 int main(){
 	if(InitWindowFailed() | InitGlewFailed()){
 		return EXIT_WITH_ERROR;
 	}
+
+	glEnable(GL_DEPTH_TEST);
 
 	GLuint vertexArrayID = 0;
 	glGenVertexArrays(1, &vertexArrayID);
@@ -162,6 +170,8 @@ int main(){
 	glUseProgram(programID);
 
 	Camera camera;
+	camera.forward = vec3(0);
+	camera.position = vec3(0,0,20);
 	float aspectRatio = SCREEN_WIDTH/(float)SCREEN_HEIGHT;
 	camera.MVPMatrixID = glGetUniformLocation(programID, "MVP");
 	camera.projectionMatrix = perspective(FIELD_OF_VIEW, aspectRatio, Z_NEAR, Z_FAR);
@@ -170,6 +180,8 @@ int main(){
 	GLuint TextureID  = glGetUniformLocation(programID, "myTextureSampler");
 
 	World world;
+	Datacore::player_data.position = vec3(0);
+	Datacore::player_data.speed = 0.2f;
 
 	//glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
 	glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
@@ -180,10 +192,13 @@ int main(){
 		//Getting delta time...
 		float deltaTime = (float)getDeltaTime();
 
+		//camera shit
+		camera.forward = camera.position;
+		camera.forward.z = 1.0f;
 		// Camera matrix
 		camera.viewMatrix = lookAt(
-			vec3(0,0,50), // Camera is at (0,0,3), in World Space
-			vec3(0,0,0), // and looks at the origin
+			camera.position, // Camera is at (0,0,3), in World Space
+			camera.forward, // and looks at the origin
 			vec3(0,1,0)  // Head is up (set to 0,-1,0 to look upside-down)
 		);
 
@@ -191,6 +206,30 @@ int main(){
 		world.Update(deltaTime);
 		world.Render(camera);
 
+		if(glfwGetKey(window, GLFW_KEY_UP)){
+			Datacore::player_data.position.y += Datacore::player_data.speed;
+		}else if(glfwGetKey(window, GLFW_KEY_DOWN)){
+			Datacore::player_data.position.y -= Datacore::player_data.speed;
+		}else if(glfwGetKey(window, GLFW_KEY_LEFT)){
+			Datacore::player_data.position.x -= Datacore::player_data.speed;
+		}else if(glfwGetKey(window, GLFW_KEY_RIGHT)){
+			Datacore::player_data.position.x += Datacore::player_data.speed;
+		}
+
+		cameraFollow(camera, Datacore::player_data.position, 1.0f);
+
+		if(camera.position.x > CAMERA_BOUNDS_RIGHT){
+			camera.position.x = CAMERA_BOUNDS_RIGHT;
+		}
+		if(camera.position.x < CAMERA_BOUNDS_LEFT){
+			camera.position.x = CAMERA_BOUNDS_LEFT;
+		}
+		if(camera.position.y > CAMERA_BOUNDS_TOP){
+			camera.position.y = CAMERA_BOUNDS_TOP;
+		}
+		if(camera.position.y < CAMERA_BOUNDS_BOTTOM){
+			camera.position.y = CAMERA_BOUNDS_BOTTOM;
+		}
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();

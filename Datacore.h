@@ -6,6 +6,12 @@
 #include "Application.h"
 
 namespace Datacore {
+
+	struct Player{
+		vec3 position;
+		float speed;
+	};
+
 	extern GLuint texture_grass;
 	extern GLuint texture_ground;
 	extern GLuint texture_treeTop;
@@ -24,5 +30,5 @@ namespace Datacore {
 	extern GLuint texture_player_walk_l2;
 	extern GLuint texture_player_walk_r1;
 	extern GLuint texture_player_walk_r2;
-	
+	extern Player player_data;	
 }

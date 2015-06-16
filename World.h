@@ -28,7 +28,7 @@ class World{
 		unsigned char FindChar(const char* buffer, const char& c);
 		
 	private:
-		Plane* plane;
+		Plane* plane, *player;
 		u8* levelBuffer;
 		u8* textureBuffer;
 		u8 numTextures, levelWidth, levelHeight;

@@ -23,4 +23,6 @@ namespace Datacore {
 	GLuint texture_player_walk_l2 = NULL;
 	GLuint texture_player_walk_r1 = NULL;
 	GLuint texture_player_walk_r2 = NULL;
+
+	Player player_data;
 }

@@ -19,7 +19,10 @@ namespace{
 
 //TODO: Add functionality later...
 World::World(){
-	plane = new Plane(1, 1);
+	plane = new Plane(1,1);
+
+	//initialize player
+	player = new Plane(1,1);
 
 	//load environmental textures
 	Datacore::texture_grass   = plane->LoadBMP("Assets/grass.bmp");
@@ -30,18 +33,18 @@ World::World(){
 	Datacore::texture_rock	  = plane->LoadBMP("Assets/rock.bmp");
 
 	//load player textures
-	Datacore::texture_player_idle_f  = plane->LoadBMP("Assets/p_idle_front");
-	Datacore::texture_player_idle_b  = plane->LoadBMP("Assets/p_idle_back");
-	Datacore::texture_player_idle_l  = plane->LoadBMP("Assets/p_idle_left");
-	Datacore::texture_player_idle_r  = plane->LoadBMP("Assets/p_idle_right");
-	Datacore::texture_player_walk_u1 = plane->LoadBMP("Assets/p_walk_up1");
-	Datacore::texture_player_walk_u2 = plane->LoadBMP("Assets/p_walk_up2");
-	Datacore::texture_player_walk_d1 = plane->LoadBMP("Assets/p_walk_down1");
-	Datacore::texture_player_walk_d2 = plane->LoadBMP("Assets/p_walk_down2");
-	Datacore::texture_player_walk_l1 = plane->LoadBMP("Assets/p_walk_left1");
-	Datacore::texture_player_walk_l2 = plane->LoadBMP("Assets/p_walk_left2");
-	Datacore::texture_player_walk_r1 = plane->LoadBMP("Assets/p_walk_right1");
-	Datacore::texture_player_walk_r2 = plane->LoadBMP("Assets/p_walk_right2");
+	Datacore::texture_player_idle_f  = player->LoadBMP("Assets/p_idle_front.bmp");
+	Datacore::texture_player_idle_b  = player->LoadBMP("Assets/p_idle_back.bmp");
+	Datacore::texture_player_idle_l  = player->LoadBMP("Assets/p_idle_left.bmp");
+	Datacore::texture_player_idle_r  = player->LoadBMP("Assets/p_idle_right.bmp");
+	Datacore::texture_player_walk_u1 = player->LoadBMP("Assets/p_walk_up1.bmp");
+	Datacore::texture_player_walk_u2 = player->LoadBMP("Assets/p_walk_up2.bmp");
+	Datacore::texture_player_walk_d1 = player->LoadBMP("Assets/p_walk_down1.bmp");
+	Datacore::texture_player_walk_d2 = player->LoadBMP("Assets/p_walk_down2.bmp");
+	Datacore::texture_player_walk_l1 = player->LoadBMP("Assets/p_walk_left1.bmp");
+	Datacore::texture_player_walk_l2 = player->LoadBMP("Assets/p_walk_left2.bmp");
+	Datacore::texture_player_walk_r1 = player->LoadBMP("Assets/p_walk_right1.bmp");
+	Datacore::texture_player_walk_r2 = player->LoadBMP("Assets/p_walk_right2.bmp");
 
 	//load world...
 	ifstream myfile(LEVEL_0);
@@ -159,7 +162,7 @@ void World::Update(const float& deltaTime){
 }
 
 void World::Render(const Camera& camera){	
-	/*int levelLength = levelHeight * levelWidth;
+	int levelLength = levelHeight * levelWidth;
 	int index = levelLength;
 	for(int i = 0; i < levelHeight; i++){
 		for(int j = 0; j < levelWidth; j++) {
@@ -191,12 +194,17 @@ void World::Render(const Camera& camera){
 				plane->textureID = Datacore::texture_rock;
 				plane->Render(camera);
 				index--; 
-			} else index--;
+			} else if(levelBuffer[index] == '6'){
+				plane->textureID = Datacore::texture_player_idle_f;
+				plane->Render(camera);
+				index--; 
+			}else index--;
 		}
-	}*/
+	}
 
-	plane->SetPosition(vec3(0,0,0));
-	plane->textureID = Datacore::texture_player_idle_f;
-	plane->Render(camera);
+	
+	player->textureID = Datacore::texture_player_idle_f;
+	player->SetPosition(Datacore::player_data.position);
+	player->Render(camera);
 
 }
